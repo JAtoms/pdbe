@@ -1,13 +1,12 @@
 package dbs.oracle_project_template;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import oracle.jdbc.OracleDriver;
 import oracle.jdbc.pool.OracleDataSource;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Scanner;
 
 public class App {
 
@@ -21,29 +20,40 @@ public class App {
             ods.setURL("jdbc:oracle:thin:@//gort.fit.vutbr.cz:1521/orclpdb");
 
             // Request login and password
-            
-            ods.setUser(System.getProperty("login"));
-            ods.setPassword(System.getProperty("password"));
 
-            /**
-             *
-             */
+            ods.setUser("xnwokoj00");
+            ods.setPassword("yTBDz7n2");
+
             // connect to the database
             try (Connection conn = ods.getConnection()) {
 
+                final List<Buildings> buildings = new ArrayList<>();
 
-//                // create a Statement
-//                try (Statement stmt = conn.createStatement()) {
-//                    // select something from the system's dual table
-//                    try (ResultSet rset = stmt.executeQuery(
-//                            "select 1+2 as col1, 3-4 as col2 from dual")) {
-//                        // iterate through the result and print the values
-//                        while (rset.next()) {
-//                            System.out.println("col1: '" + rset.getString(1)
-//                                    + "'\tcol2: '" + rset.getString(2) + "'");
-//                        }
-//                    } // close the ResultSet
-//                } // close the Statement
+                // Create new buildings
+                for (int i = 1; i <= 4; i++) {
+                    buildings.add(new Buildings(i, "property" + i));
+                }
+
+
+                for (Buildings Buildings : buildings) {
+                    // Set building title before saving to database
+                    Buildings.setTitle("property" + Buildings.getCode());
+                    Buildings.saveToDb(conn);
+                }
+
+                // Save images of buildings to local database
+                for (Buildings Buildings : buildings) {
+                    Buildings.saveImageToDbFromFile(conn, "./src/images/testImage/property" + Buildings.getCode() + ".gif");
+                }
+
+                // Save images of buildings to local database
+                for (Buildings Buildings : buildings) {
+                    Buildings.loadImageFromDbToFile(conn, "./src/images/result/property" + Buildings.getCode() + ".gif");
+                }
+
+                Buildings.getMostSimilarBuilding(buildings, conn);
+                Buildings.getImageProperties(conn);
+
             } // close the connection
 
         } catch (SQLException sqlEx) {

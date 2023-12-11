@@ -1,12 +1,21 @@
 package dbs.oracle_project_template;
 
-import static dbs.oracle_project_template.Statements.*;
+import static dbs.oracle_project_template.Statements.SQL_INSERT_NEW;
+import static dbs.oracle_project_template.Statements.SQL_SELECT_DATA;
+import static dbs.oracle_project_template.Statements.SQL_SELECT_IMAGE;
+import static dbs.oracle_project_template.Statements.SQL_SELECT_IMAGE_FOR_UPDATE;
+import static dbs.oracle_project_template.Statements.SQL_SIMILAR_IMAGE;
+import static dbs.oracle_project_template.Statements.SQL_UPDATE_DATA;
+import static dbs.oracle_project_template.Statements.SQL_UPDATE_IMAGE;
+import static dbs.oracle_project_template.Statements.SQL_UPDATE_STILLIMAGE;
+import static dbs.oracle_project_template.Statements.SQL_UPDATE_STILLIMAGE_META;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleResultSet;
@@ -16,65 +25,31 @@ public class Buildings {
     private int code;
     private String title;
 
-    /**
-     * Construct a new buildings of the provided code and title.
-     *
-     * @param code  code of the buildings
-     * @param title title of the buildings
-     */
+
     public Buildings(int code, String title) {
         this.code = code;
         this.title = title;
     }
 
-    /**
-     * Construct a new buildings of the provided code and load the rest of its properties from a database.
-     *
-     * @param connection database connection
-     * @param code       code of the buildings
-     * @throws NotFoundException the buildings of this particular code is not in the database
-     * @throws SQLException      SQL error
-     */
     public Buildings(Connection connection, int code) throws NotFoundException, SQLException {
         this.code = code;
         // load the rest of properties from the database
         loadFromDb(connection);
     }
 
-    /**
-     * Get a code of the buildings.
-     *
-     * @return code of the buildings
-     */
     public int getCode() {
         return code;
     }
 
-    /**
-     * Get a title of the buildings.
-     *
-     * @return title of the buildings
-     */
     public String getTitle() {
         return title;
     }
 
-    /**
-     * Set a new title of the buildings.
-     *
-     * @param title new title of the buildings
-     */
     public void setTitle(String title) {
         this.title = title;
     }
 
-    /**
-     * Load properties of the buildings based on its code from a database.
-     *
-     * @param connection database connection
-     * @throws SQLException      SQL error
-     * @throws NotFoundException the buildings of this particular code is not in the database
-     */
+    // To load the properties of a building based on its code from a database.
     public void loadFromDb(Connection connection) throws SQLException, NotFoundException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_DATA)) {
             preparedStatement.setInt(1, code);
@@ -88,12 +63,9 @@ public class Buildings {
         }
     }
 
-    /**
-     * Save properties of the buildings to a database.
-     *
-     * @param connection database connection
-     * @throws SQLException SQL error
-     */
+    // To save properties of a building to a database.
+    // If the building does not exist, it is created.
+    // If it exists, it is updated.
     public void saveToDb(Connection connection) throws SQLException {
         try (PreparedStatement preparedStatementInsert = connection.prepareStatement(SQL_INSERT_NEW)) {
             preparedStatementInsert.setInt(1, code);
@@ -112,64 +84,8 @@ public class Buildings {
         }
     }
 
-    /**
-     * Load an image of the buildings from a database and save it to a local file.
-     *
-     * @param connection database connection
-     * @param filename   file title where to save the image
-     * @throws SQLException      SQL error
-     * @throws NotFoundException the buildings of this particular code is not in the database
-     * @throws IOException       I/O error
-     */
-    public void loadImageFromDbToFile(Connection connection, String filename) throws SQLException, NotFoundException, IOException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_IMAGE)) {
-            preparedStatement.setInt(1, code);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
-                    final OrdImage ordImage = (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
-                    ordImage.getDataInFile(filename);
-                } else {
-                    throw new NotFoundException();
-                }
-            }
-        }
-    }
 
-    private OrdImage selectOrdImageForUpdate(Connection connection) throws SQLException, NotFoundException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_IMAGE_FOR_UPDATE)) {
-            preparedStatement.setInt(1, code);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
-                    return (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
-                } else {
-                    throw new NotFoundException();
-                }
-            }
-        }
-    }
-
-    private void recreateStillImageData(Connection connection) throws SQLException {
-        try (PreparedStatement preparedStatementSi = connection.prepareStatement(SQL_UPDATE_STILLIMAGE)) {
-            preparedStatementSi.setInt(1, code);
-            preparedStatementSi.executeUpdate();
-        }
-        try (PreparedStatement preparedStatementSiMeta = connection.prepareStatement(SQL_UPDATE_STILLIMAGE_META)) {
-            preparedStatementSiMeta.setInt(1, code);
-            preparedStatementSiMeta.executeUpdate();
-        }
-    }
-
-    /**
-     * Load an image of the buildings from a local file and save it in a database.
-     *
-     * @param connection database connection
-     * @param filename   file title where to load the image from
-     * @throws SQLException      SQL error
-     * @throws NotFoundException the buildings of this particular code is not in the database
-     * @throws IOException       I/O error
-     */
+    // To save an image of the product to a database from a local file.
     public void saveImageToDbFromFile(Connection connection, String filename) throws SQLException, NotFoundException, IOException {
         final boolean previousAutoCommit = connection.getAutoCommit();
         connection.setAutoCommit(false);
@@ -202,6 +118,82 @@ public class Buildings {
         }
     }
 
+    // To save an image of the product to a database.
+    private OrdImage selectOrdImageForUpdate(Connection connection) throws SQLException, NotFoundException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_IMAGE_FOR_UPDATE)) {
+            preparedStatement.setInt(1, code);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
+                    return (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
+                } else {
+                    throw new NotFoundException();
+                }
+            }
+        }
+    }
+
+    // To recreate still image data of the product in a database.
+    private void recreateStillImageData(Connection connection) throws SQLException {
+        try (PreparedStatement preparedStatementSi = connection.prepareStatement(SQL_UPDATE_STILLIMAGE)) {
+            preparedStatementSi.setInt(1, code);
+            preparedStatementSi.executeUpdate();
+        }
+        try (PreparedStatement preparedStatementSiMeta = connection.prepareStatement(SQL_UPDATE_STILLIMAGE_META)) {
+            preparedStatementSiMeta.setInt(1, code);
+            preparedStatementSiMeta.executeUpdate();
+        }
+    }
+
+
+    // To load building images from database and save it to a local file.
+    public void loadImageFromDbToFile(Connection connection, String filename) throws SQLException, NotFoundException, IOException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_IMAGE)) {
+            preparedStatement.setInt(1, code);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
+                    final OrdImage ordImage = (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
+                    ordImage.getDataInFile(filename);
+                } else {
+                    throw new NotFoundException();
+                }
+            }
+        }
+    }
+
+    public static void getMostSimilarBuilding(final List<Buildings> buildings, Connection conn) {
+        // Search similarity of building images
+        final Buildings firstBuildings = buildings.get(0);
+        final Buildings similarBuildings;
+        try {
+            similarBuildings = firstBuildings.findTheMostSimilar(conn, 0.3, 0.3, 0.1, 0.3);
+        } catch (SQLException | NotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("\nThe most similar to building" + firstBuildings.getCode() + " with title " + firstBuildings.getTitle() + " is building" + similarBuildings.getCode());
+
+    }
+
+    public static void getImageProperties(Connection connection) throws SQLException, NotFoundException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_IMAGE)) {
+            preparedStatement.setInt(1, 1);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
+                    final OrdImage ordImage = (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
+                    System.out.println("\nProperties of image" + ordImage.getFormat() + "\n"
+                            + "Height: " + ordImage.getHeight() + "\n"
+                            + "Width: " + ordImage.getWidth() + "\n"
+                            + "Update time:" + ordImage.getUpdateTime());
+                } else {
+//                    throw new NotFoundException();
+                }
+            }
+        }
+    }
+
+
     /**
      * Find a buildings with the most similar image to the current buildings based on several criteria.
      *
@@ -232,8 +224,10 @@ public class Buildings {
         }
     }
 
+
     public class NotFoundException extends Exception {
         // nothing to extend
     }
 
 }
+
