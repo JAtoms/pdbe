@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane fx:id="paneAll" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.atoms.refurbished.DatabaseController">
+    <children>
+        <AnchorPane prefHeight="800.0" prefWidth="600.0" style="-fx-background-color: #E4002B;">
+         <children>
+            <Label fx:id="loginGreeting" layoutX="100.0" layoutY="24.0" textFill="WHITE" />
+            <ImageView fitHeight="49.0" fitWidth="51.0" layoutX="27.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../multimedia.png" />
+               </image>
+            </ImageView>
+            <Text fill="WHITE" layoutX="95.0" layoutY="67.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Oracle Multimedia DB">
+               <font>
+                  <Font name="System Bold" size="23.0" />
+               </font>
+            </Text>
+            <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" layoutX="358.0" layoutY="166.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../logo.png" />
+               </image>
+            </ImageView>
+
+            <AnchorPane layoutX="1.0" layoutY="139.0" prefHeight="400.0" prefWidth="300.0">
+               <children>
+                  <Button fx:id="insertImageBtn" contentDisplay="CENTER" layoutX="20.0" layoutY="26.0" mnemonicParsing="false" onAction="#insertImageBtn" prefHeight="50.0" prefWidth="251.0" style="-fx-background-color: white;" text="Insert image" textFill="#e4002b">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="clearDB" contentDisplay="CENTER" layoutX="22.0" layoutY="173.0" mnemonicParsing="false" onAction="#clearDB" prefHeight="50.0" prefWidth="251.0" style="-fx-background-color: white;" text="Clear DB" textFill="#e4002b">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="delImage" alignment="CENTER" contentDisplay="CENTER" layoutX="21.0" layoutY="99.0" mnemonicParsing="false" onAction="#deleteImage" prefHeight="50.0" prefWidth="144.0" style="-fx-background-color: white;" text="Delete Image" textFill="#e4002b">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="update" contentDisplay="CENTER" layoutX="22.0" layoutY="247.0" mnemonicParsing="false" onAction="#update" prefHeight="50.0" prefWidth="251.0" style="-fx-background-color: white;" text="Update Image" textFill="#e4002b">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font>
+                  </Button>
+                  <TextField layoutX="27.0" layoutY="322.0" prefHeight="27.0" prefWidth="107.0" promptText="Image ID" />
+                  <TextField layoutX="160.0" layoutY="322.0" prefHeight="27.0" prefWidth="107.0" promptText="Title" />
+                  <TextField fx:id="delImageID" layoutX="182.0" layoutY="100.0" prefHeight="50.0" prefWidth="90.0" promptText="Image ID" />
+               </children>
+
+            </AnchorPane>
+            <AnchorPane layoutX="23.0" layoutY="573.0" prefHeight="200.0" prefWidth="550.0" style="-fx-background-color: #eeebeb;">
+               <children>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="11.0" layoutY="14.0" text="Images in DB" />
+                     </children>
+                  </AnchorPane>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label fx:id="images" layoutX="17.0" layoutY="46.0" />
+                     </children>
+                  </AnchorPane>
+                  <AnchorPane layoutX="202.0" prefHeight="200.0" prefWidth="350.0" style="-fx-background-color: #c3c1c1;">
+                     <children>
+                        <Label layoutX="8.0" layoutY="14.0" text="Logs" />
+                        <Label fx:id="logs" layoutX="16.0" layoutY="46.0" />
+                     </children>
+                  </AnchorPane>
+               </children></AnchorPane>
+         </children>
+
+        </AnchorPane>
+      <AnchorPane layoutX="601.0" layoutY="1.0" prefHeight="800.0" prefWidth="600.0">
+         <children>
+            <Button fx:id="openMultimedia1" layoutX="163.0" layoutY="490.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="234.0" style="-fx-background-color: #e4002b;" text="Open Spatial DB" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="49.0" fitWidth="51.0" layoutX="40.0" layoutY="35.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../spatial.png" />
+               </image>
+            </ImageView>
+            <Text fx:id="welcome3" fill="#e4002b" layoutX="108.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Oracle Spatial DB">
+               <font>
+                  <Font name="System Bold" size="23.0" />
+               </font>
+            </Text>
+            <Label fx:id="welcome2" layoutX="108.0" layoutY="35.0" textFill="#e4002b" />
+         </children>
+      </AnchorPane>
+    </children>
+</AnchorPane>

@@ -4,8 +4,6 @@ import oracle.jdbc.OraclePreparedStatement;
 import oracle.jdbc.OracleResultSet;
 import oracle.ord.im.OrdImage;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static database.Statements.*;
@@ -25,38 +25,11 @@ public class ImageProcessing {
         ImageProcessing.connection = connection;
     }
 
-    // Pick image and insert it to the database
-    public void pickImage() throws SQLException, IOException, DataBaseException {
 
-        // Create a file chooser
-        JFileChooser fileChooser = new JFileChooser();
-
-        // Set the file chooser to select only files (not directories)
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
-        // Set the file filter to show only image files
-        fileChooser.setFileFilter(new FileFilter() {
-            public boolean accept(File file) {
-                return file.getName().toLowerCase().endsWith(".jpg") ||
-                        file.getName().toLowerCase().endsWith(".jpeg") ||
-                        file.getName().toLowerCase().endsWith(".png") ||
-                        file.isDirectory();
-            }
-
-            public String getDescription() {
-                return "Image files (*.jpg, *.jpeg, *.png)";
-            }
-        });
-        int result = fileChooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            insertImage(fileChooser.getSelectedFile());
-        } else {
-            System.out.println("No file selected.");
-        }
-    }
-
-    public void insertImage(File imageFile) throws SQLException, DataBaseException, IOException {
+    public String insertImage(File imageFile) throws SQLException, DataBaseException, IOException {
         final boolean previousAutoCommit = connection.getAutoCommit();
+
+        String insertionStatus = "Image insertion failed";
 
         Random rand = new Random();
         int code = rand.nextInt(100);
@@ -64,6 +37,7 @@ public class ImageProcessing {
         connection.setAutoCommit(false);
         try {
             OrdImage ordImage;
+            System.out.println("Inserting image...");
             try {
                 // at first, try to get the image from an existing row
                 ordImage = returnSingleImage(code);
@@ -80,22 +54,30 @@ public class ImageProcessing {
             ordImage.loadDataFromFile(imageFile.getAbsolutePath());
             ordImage.setProperties();
             updateImage(code, ordImage);
+            insertionStatus = "Image inserted successfully";
+            saveReturnedImage(code);
         } finally {
             connection.setAutoCommit(previousAutoCommit);
         }
+        System.out.println(insertionStatus);
+        return insertionStatus;
     }
 
 
     // Delete image
-    public void deleteImage(int code) throws SQLException {
+    public String deleteImage(int code) throws SQLException {
+        String deletionStatus = "Image deletion failed";
+        System.out.println("Deleting image...");
         try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_IMAGE)) {
             preparedStatement.setInt(1, code);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                System.out.println("Building with code " + code + " was deleted.");
+                deletionStatus = "Image with ID " + code + " was deleted.";
+                System.out.println(deletionStatus);
             } catch (Exception e) {
-                System.out.println("Error in deleting image");
+                deletionStatus = "Error in deleting image with ID " + code + ".";
             }
         }
+        return deletionStatus;
     }
 
     public OrdImage returnSingleImage(int image_id) throws SQLException, DataBaseException {
@@ -118,7 +100,7 @@ public class ImageProcessing {
             oraclePreparedStatement.setORAData(1, ordImage);
             preparedStatement.setInt(2, imageId);
             preparedStatement.executeUpdate();
-            System.out.println("Image inserted successfully" + imageId);
+            System.out.println("Image inserted successfully: " + imageId);
         } catch (Exception exception) {
             System.out.println("Error inserting Image");
         }
@@ -131,13 +113,33 @@ public class ImageProcessing {
                 if (resultSet.next()) {
                     final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
                     final OrdImage ordImage = (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
-                    ordImage.getDataInFile("src/main/resources/results/newImage" + imageId + ".png");
+                    ordImage.getDataInFile("src/main/resources/results/newImage" + ".png");
                     System.out.println("Image saved to ./results");
                 } else {
                     System.out.println("No image found with the given ID.");
                 }
             }
         }
+    }
+
+    public String selectAlLImages() throws SQLException {
+        List<String> imageList = new ArrayList<>();
+        StringBuilder buildingData = new StringBuilder("No data found");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    String imageId = String.valueOf((resultSet.getLong("image_id")));
+                    String mageTitle = (resultSet.getString("title"));
+                    String data = imageId + " " + mageTitle + "\n";
+                    imageList.add(data);
+                    while (!imageList.isEmpty()) {
+                        buildingData.append(imageList.getFirst());
+                        imageList.removeFirst();
+                    }
+                }
+            }
+        }
+       return buildingData.toString();
     }
 
     public void rotateImage(int imageId, float angle) {

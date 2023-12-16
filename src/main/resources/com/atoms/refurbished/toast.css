@@ -1,0 +1,6 @@
+.toast-label {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 10;
+    -fx-font-size: 14;
+}
