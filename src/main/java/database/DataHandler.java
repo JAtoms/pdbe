@@ -41,7 +41,6 @@ public class DataHandler {
     public static String connectDB(String userName, String password) {
         try {
             connection = DriverManager.getConnection(oracleUrl, userName, password);
-            ImageProcessing imageProcessing = new ImageProcessing(connection);
             DatabaseController controller = new DatabaseController();
             controller.setOwnerUsername(userName, connection);
             System.out.println("Connected to Oracle database server");

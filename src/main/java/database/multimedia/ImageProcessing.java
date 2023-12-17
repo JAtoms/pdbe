@@ -26,13 +26,13 @@ public class ImageProcessing {
     }
 
 
-    public String insertImage(File imageFile) throws SQLException, DataBaseException, IOException {
+    public String insertImage(File imageFile, int imageID, String title) throws SQLException, DataBaseException, IOException {
         final boolean previousAutoCommit = connection.getAutoCommit();
 
         String insertionStatus = "Image insertion failed";
 
         Random rand = new Random();
-        int code = rand.nextInt(100);
+        int code = imageID != 101 ? imageID : rand.nextInt(100);
 
         connection.setAutoCommit(false);
         try {
@@ -40,7 +40,7 @@ public class ImageProcessing {
             System.out.println("Inserting image...");
             try {
                 // at first, try to get the image from an existing row
-                ordImage = returnSingleImage(code);
+                ordImage = returnSingleImage(code, imageID != 101);
             } catch (SQLException | DataBaseException ex) {
                 try (PreparedStatement preparedStatementInsert = connection.prepareStatement(INSERT_NEW_IMAGE)) {
                     preparedStatementInsert.setInt(1, code);
@@ -49,11 +49,11 @@ public class ImageProcessing {
                     preparedStatementInsert.executeUpdate();
                 }
                 // get the image from the previously inserted row
-                ordImage = returnSingleImage(code);
+                ordImage = returnSingleImage(code, imageID != 101);
             }
             ordImage.loadDataFromFile(imageFile.getAbsolutePath());
             ordImage.setProperties();
-            updateImage(code, ordImage);
+            updateImage(code, ordImage, title, imageID != 101);
             insertionStatus = "Image inserted successfully";
             saveReturnedImage(code);
         } finally {
@@ -66,7 +66,7 @@ public class ImageProcessing {
 
     // Delete image
     public String deleteImage(int code) throws SQLException {
-        String deletionStatus = "Image deletion failed";
+        String deletionStatus;
         System.out.println("Deleting image...");
         try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_IMAGE)) {
             preparedStatement.setInt(1, code);
@@ -80,12 +80,13 @@ public class ImageProcessing {
         return deletionStatus;
     }
 
-    public OrdImage returnSingleImage(int image_id) throws SQLException, DataBaseException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_IMAGE)) {
+    private OrdImage returnSingleImage(int image_id, Boolean isUpdate) throws SQLException, DataBaseException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(isUpdate ? SELECT_IMAGE_FOR_UPDATE : SELECT_IMAGE)) {
             preparedStatement.setInt(1, image_id);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     final OracleResultSet oracleResultSet = (OracleResultSet) resultSet;
+                    System.out.println("Image found with the given ID.");
                     return (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
                 } else {
                     throw new DataBaseException();
@@ -94,17 +95,21 @@ public class ImageProcessing {
         }
     }
 
-    private void updateImage(int imageId, OrdImage ordImage) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_IMAGE)) {
+    private void updateImage(int imageId, OrdImage ordImage, String title, Boolean isUpdate) {
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(isUpdate ? UPDATE_IMAGE_WITH_TITLE : UPDATE_IMAGE)) {
             final OraclePreparedStatement oraclePreparedStatement = (OraclePreparedStatement) preparedStatement;
             oraclePreparedStatement.setORAData(1, ordImage);
             preparedStatement.setInt(2, imageId);
+            if (title != null)
+                preparedStatement.setString(3, title);
             preparedStatement.executeUpdate();
             System.out.println("Image inserted successfully: " + imageId);
         } catch (Exception exception) {
             System.out.println("Error inserting Image");
         }
     }
+
 
     public void saveReturnedImage(int imageId) throws SQLException, IOException {
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_IMAGE)) {
@@ -122,15 +127,17 @@ public class ImageProcessing {
         }
     }
 
-    public String selectAlLImages() throws SQLException {
+    public String getAlLImages() throws SQLException {
         List<String> imageList = new ArrayList<>();
-        StringBuilder buildingData = new StringBuilder("No data found");
+        StringBuilder buildingData = new StringBuilder("No data in database");
         try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL)) {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     String imageId = String.valueOf((resultSet.getLong("image_id")));
                     String mageTitle = (resultSet.getString("title"));
-                    String data = imageId + " " + mageTitle + "\n";
+                    String data = imageId + " - " + mageTitle + "\n";
+                    if (buildingData.indexOf("No data in database") != -1)
+                        buildingData = new StringBuilder();
                     imageList.add(data);
                     while (!imageList.isEmpty()) {
                         buildingData.append(imageList.getFirst());
@@ -139,7 +146,20 @@ public class ImageProcessing {
                 }
             }
         }
-       return buildingData.toString();
+        return buildingData.toString();
+    }
+
+    public String clearDB() {
+        String deletionStatus;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(CLEAR_TABLE)) {
+            preparedStatement.executeUpdate();
+            deletionStatus = ("Database cleared");
+            System.out.println("Database cleared");
+        } catch (Exception exception) {
+            deletionStatus = ("Error in clearing database");
+            System.out.println("Error in clearing database");
+        }
+        return deletionStatus;
     }
 
     public void rotateImage(int imageId, float angle) {
@@ -152,7 +172,7 @@ public class ImageProcessing {
                     OrdImage ordImage = (OrdImage) oracleResultSet.getORAData(1, OrdImage.getORADataFactory());
                     ordImage.process("rotate=" + angle);
                     // Update the rotated image back to the database
-                    updateImage(imageId, ordImage);
+//                    updateImage(imageId, ordImage);
                 } else {
                     System.out.println("Image not found for ID: " + imageId);
                 }
