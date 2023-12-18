@@ -65,8 +65,12 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+
+                    
                 </configuration>
             </plugin>
+
+
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>

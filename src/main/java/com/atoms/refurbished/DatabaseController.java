@@ -1,6 +1,5 @@
 package com.atoms.refurbished;
 
-import database.DataHandler;
 import database.multimedia.ImageProcessing;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,18 +9,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 
 public class DatabaseController {
 
     @FXML
-    private Label loginGreeting, logs, images;
+    private Label loginGreeting, imageProperties, logs, images;
 
     @FXML
     private Button insertImageBtn, updateImageBtn;
@@ -51,13 +50,11 @@ public class DatabaseController {
 
         if (selectedFile != null) {
             ImageProcessing imageProcessing = new ImageProcessing(connection);
-            String insertionStatus = imageProcessing.insertImage(selectedFile, 101, null);
-            if (insertionStatus.equals("Image inserted successfully")) {
+            List<String> insertionStatus = imageProcessing.insertImage(selectedFile, 101, null);
+            if (insertionStatus.getFirst().equals("Image inserted successfully")) {
                 logs.setText("Image inserted successfully");
-                Image image = new Image(new File("src/main/resources/results/newImage.png").toURI().toString());
-                imageView.setFitHeight(270);
-                imageView.setFitWidth(270);
-                imageView.setImage(image);
+                imageProperties.setText(insertionStatus.get(1));
+                imageViewer();
                 showImages(imageProcessing);
             } else {
                 logs.setText("Image insertion failed");
@@ -108,13 +105,11 @@ public class DatabaseController {
 
         if (selectedFile != null) {
             ImageProcessing imageProcessing = new ImageProcessing(connection);
-            String insertionStatus = imageProcessing.insertImage(selectedFile, Integer.parseInt(updateImgID.getText()), updateImgTitle.getText());
-            if (insertionStatus.equals("Image inserted successfully")) {
+            List<String> insertionStatus = imageProcessing.insertImage(selectedFile, Integer.parseInt(updateImgID.getText()), updateImgTitle.getText());
+            if (insertionStatus.getFirst().equals("Image inserted successfully")) {
                 logs.setText("Image updated successfully");
-                Image image = new Image(new File("src/main/resources/results/newImage.png").toURI().toString());
-                imageView.setFitHeight(270);
-                imageView.setFitWidth(270);
-                imageView.setImage(image);
+                imageProperties.setText(insertionStatus.get(1));
+                imageViewer();
                 showImages(imageProcessing);
             } else {
                 logs.setText("Image updating failed");
@@ -122,16 +117,17 @@ public class DatabaseController {
         }
     }
 
-    @FXML
-    private void openSpacial() throws SQLException {
-        logs.setText(DataHandler.connectDB("xnwokoj00", "yTBDz7n2"));
-        ImageProcessing imageProcessing = new ImageProcessing(connection);
-        showImages(imageProcessing);
-    }
 
     private void showImages(ImageProcessing imageProcessing) throws SQLException {
         images.setText("All images in the database: \n\n" + imageProcessing.getAlLImages());
     }
 
+    private void imageViewer() {
+        Image image = new Image(new File("src/main/resources/results/newImage.png")
+                .toURI().toString());
+        imageView.setFitHeight(270);
+        imageView.setFitWidth(270);
+        imageView.setImage(image);
+    }
 
 }

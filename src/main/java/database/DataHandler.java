@@ -3,6 +3,7 @@ package database;//package database;
 import com.atoms.refurbished.DatabaseController;
 import com.atoms.refurbished.HelloApplication;
 import database.multimedia.ImageProcessing;
+import database.multimedia.MultimediaDatabase;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -22,10 +23,9 @@ public class DataHandler {
     public static String connectToDB(String userName, String password, ActionEvent event, Stage ownerStage) {
         try {
             connection = DriverManager.getConnection(oracleUrl, userName, password);
-            ImageProcessing imageProcessing = new ImageProcessing(connection);
-//            MultimediaDatabase.create(connection);
-//            imageProcessing.saveReturnedImage(94);
-//            imageProcessing.rotateImage(48, 94);
+            DatabaseController controller = new DatabaseController();
+            controller.setOwnerUsername(userName, connection);
+            MultimediaDatabase.create(connection);
             showToast("Login successful!", ownerStage);
             navigateToNewPage(userName, event);
             return "Login successful"; // yTBDz7n2
@@ -38,25 +38,11 @@ public class DataHandler {
 
     }
 
-    public static String connectDB(String userName, String password) {
-        try {
-            connection = DriverManager.getConnection(oracleUrl, userName, password);
-            DatabaseController controller = new DatabaseController();
-            controller.setOwnerUsername(userName, connection);
-            System.out.println("Connected to Oracle database server");
-            return "Connected to Oracle database server";
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-            System.out.println("Connection to Oracle database server failed");
-            return "Connection to Oracle database server failed";
-        }
-
-    }
 
     private static void navigateToNewPage(String userName, ActionEvent event) throws IOException {
         Stage stage = new Stage();
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("database-type.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
+        Scene scene = new Scene(fxmlLoader.load(), 800, 800);
         stage.setScene(scene);
         stage.setTitle("Welcome " + userName + "!");
         stage.show();

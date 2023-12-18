@@ -8,7 +8,7 @@ public class MultimediaDatabase {
 
     public static void create(Connection connection) throws SQLException {
        try {
-           dropTable(connection);
+//           dropTable(connection);
            dropSequence(connection);
            createSequence(connection);
            createTable(connection);

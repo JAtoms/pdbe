@@ -32,8 +32,8 @@ public class HelloController {
         if (userName.getText().isBlank() || password.getText().isBlank()) {
             loginErrorMsg("Login credentials incorrect!");
         } else {
-            loginErrorMsg(DataHandler.connectToDB("xnwokoj00", "yTBDz7n2", event, ownerStage));
-//            loginErrorMsg(DataHandler.connectToDB(userName.getText(), password.getText(), event, ownerStage));
+//            loginErrorMsg(DataHandler.connectToDB("xnwokoj00", "yTBDz7n2", event, ownerStage));
+            loginErrorMsg(DataHandler.connectToDB(userName.getText(), password.getText(), event, ownerStage));
         }
 
     }

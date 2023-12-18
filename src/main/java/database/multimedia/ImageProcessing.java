@@ -26,10 +26,11 @@ public class ImageProcessing {
     }
 
 
-    public String insertImage(File imageFile, int imageID, String title) throws SQLException, DataBaseException, IOException {
+    public List<String> insertImage(File imageFile, int imageID, String title) throws SQLException, DataBaseException, IOException {
         final boolean previousAutoCommit = connection.getAutoCommit();
 
-        String insertionStatus = "Image insertion failed";
+        String insertionStatus = "Image insertion failed", imageProperties = "";
+        List<String> imageList = new ArrayList<>();
 
         Random rand = new Random();
         int code = imageID != 101 ? imageID : rand.nextInt(100);
@@ -55,12 +56,24 @@ public class ImageProcessing {
             ordImage.setProperties();
             updateImage(code, ordImage, title, imageID != 101);
             insertionStatus = "Image inserted successfully";
+            String compressionFormat = ordImage.getCompressionFormat();
+            String format = ordImage.getFormat();
+            String height = String.valueOf(ordImage.getHeight());
+            String width = String.valueOf(ordImage.getWidth());
+            String mimeType = ordImage.getMimeType();
+            imageProperties = "Height: " + height + "\n" +
+                    "Width: " + width + "\n" +
+                    "Format: " + format + "\n" +
+                    "Mime type: " + mimeType + "\n" +
+                    "Compression format: " + compressionFormat + "\n";
+            imageList.add(insertionStatus);
+            imageList.add(imageProperties);
             saveReturnedImage(code);
         } finally {
             connection.setAutoCommit(previousAutoCommit);
         }
         System.out.println(insertionStatus);
-        return insertionStatus;
+        return imageList;
     }
 
 
@@ -208,6 +221,11 @@ public class ImageProcessing {
         }
         return imageData;
     }
+
+    //
+    // The buildings should be represented by polygons, the swimming pool by a circle, and the football pitch by a rectangle.
+    // The buildings should have a name, the swimming pool should have a name and a capacity, and the football pitch should have a name and a size.
+    // The buildings should be located in the city of Brno, the swimming pool in the city of Bratislava, and the football pitch in the city of Prague.
 
 
 //    public List<Shape> loadShapesFromDb(Connection connection) throws SQLException {

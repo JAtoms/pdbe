@@ -10,9 +10,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="paneAll" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.atoms.refurbished.DatabaseController">
+<AnchorPane fx:id="paneAll" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.atoms.refurbished.DatabaseController">
     <children>
-        <AnchorPane prefHeight="800.0" prefWidth="600.0" style="-fx-background-color: #E4002B;">
+        <AnchorPane prefHeight="800.0" prefWidth="800.0" style="-fx-background-color: #E4002B;">
          <children>
             <Label fx:id="loginGreeting" layoutX="100.0" layoutY="24.0" textFill="WHITE" />
             <ImageView fitHeight="49.0" fitWidth="51.0" layoutX="27.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true">
@@ -25,11 +25,7 @@
                   <Font name="System Bold" size="23.0" />
                </font>
             </Text>
-            <ImageView fx:id="imageView" fitHeight="270.0" fitWidth="270.0" layoutX="301.0" layoutY="178.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../logo.png" />
-               </image>
-            </ImageView>
+            <ImageView fx:id="imageView" fitHeight="223.0" fitWidth="327.0" layoutX="314.0" layoutY="163.0" pickOnBounds="true" preserveRatio="true" />
 
             <AnchorPane layoutX="1.0" layoutY="139.0" prefHeight="400.0" prefWidth="300.0">
                <children>
@@ -59,14 +55,14 @@
                </children>
 
             </AnchorPane>
-            <AnchorPane layoutX="23.0" layoutY="573.0" prefHeight="200.0" prefWidth="550.0" style="-fx-background-color: #eeebeb;">
+            <AnchorPane layoutX="23.0" layoutY="573.0" prefHeight="200.0" prefWidth="750.0" style="-fx-background-color: #eeebeb;">
                <children>
-                  <AnchorPane prefHeight="200.0" prefWidth="300.0">
+                  <AnchorPane prefHeight="200.0" prefWidth="400.0">
                      <children>
                         <Label layoutX="11.0" layoutY="14.0" text="Images in DB" />
-                        <ScrollPane layoutY="40.0" prefHeight="160.0" prefWidth="300.0">
+                        <ScrollPane layoutY="40.0" prefHeight="160.0" prefWidth="400.0">
                           <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="172.0" prefWidth="293.0">
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="172.0" prefWidth="400.0">
                                  <children>
                                     <Label fx:id="images" layoutX="8.0" layoutY="7.0" />
                                  </children>
@@ -75,35 +71,17 @@
                         </ScrollPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane layoutX="301.0" prefHeight="200.0" prefWidth="250.0" style="-fx-background-color: #c3c1c1;">
+                  <AnchorPane layoutX="401.0" prefHeight="200.0" prefWidth="350.0" style="-fx-background-color: #c3c1c1;">
                      <children>
                         <Label layoutX="8.0" layoutY="14.0" text="Logs" />
                         <Label fx:id="logs" layoutX="16.0" layoutY="46.0" />
                      </children>
                   </AnchorPane>
                </children></AnchorPane>
+            <Label fx:id="imageProperties" layoutX="318.0" layoutY="388.0" textFill="WHITE" />
+            <Label layoutX="19.0" layoutY="119.0" text="Welcome! To begin, start by inserting an image." textFill="WHITE" />
          </children>
 
         </AnchorPane>
-      <AnchorPane layoutX="601.0" layoutY="1.0" prefHeight="800.0" prefWidth="600.0">
-         <children>
-            <Button fx:id="openMultimedia1" layoutX="163.0" layoutY="490.0" mnemonicParsing="false" onAction="#openSpacial" prefHeight="50.0" prefWidth="234.0" style="-fx-background-color: #e4002b;" text="Open Spatial DB" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="15.0" />
-               </font>
-            </Button>
-            <ImageView fitHeight="49.0" fitWidth="51.0" layoutX="40.0" layoutY="35.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../spatial.png" />
-               </image>
-            </ImageView>
-            <Text fx:id="welcome3" fill="#e4002b" layoutX="108.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Oracle Spatial DB">
-               <font>
-                  <Font name="System Bold" size="23.0" />
-               </font>
-            </Text>
-            <Label fx:id="welcome2" layoutX="108.0" layoutY="35.0" textFill="#e4002b" />
-         </children>
-      </AnchorPane>
     </children>
 </AnchorPane>
